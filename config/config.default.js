@@ -16,7 +16,7 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1601697128068_9572';
 
   // add your middleware config here
-  config.middleware = [];
+  config.middleware = ['adminauth'];
 
   // add your user config here
   const userConfig = {
@@ -42,7 +42,8 @@ module.exports = appInfo => {
   }
 
   config.cors = {
-    origin: '*',
+    // origin: '*',
+    credentials:true, //运行cookie跨域
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS'
   }
 
