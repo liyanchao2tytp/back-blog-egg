@@ -26,6 +26,6 @@ module.exports = app => {
   router.get('/admin/getArticleById/:id',adminauth,controller.admin.main.getArticleById)
   router.post('/admin/alterPubState/',adminauth,controller.admin.main.alterIsPublic)
   router.post('/admin/alterTopState/',adminauth,controller.admin.main.alterIsTop)
-
-
+  router.get('/admin/getRecycleList',adminauth,controller.admin.main.getRecycleArticle)
+  router.post('/admin/deleteToRecycle',adminauth,controller.admin.main.delToRecycle)
 }

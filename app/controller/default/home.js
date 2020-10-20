@@ -21,7 +21,7 @@ class HomeController extends Controller {
                 article.is_top AS is_top,
                 type.typeName AS typeName 
             FROM article LEFT JOIN TYPE ON article.type_id = type.Id 
-        WHERE article.is_public = 1
+        WHERE article.is_public = 1  AND article.is_recycle=0 
         ORDER BY 
             article.is_top DESC, 
             article.addTime DESC 
@@ -73,7 +73,7 @@ class HomeController extends Controller {
             article.view_count as view_count, 
             type.typeName as typeName 
             FROM article LEFT JOIN type ON article.type_id = type.Id 
-            WHERE article.type_id=${id} AND article.is_public=1
+            WHERE article.type_id=${id} AND article.is_public=1 AND article.is_recycle=0 
             ORDER BY article.is_top DESC, article.addTime DESC 
           `
     const results = await app.mysql.query(sql)
