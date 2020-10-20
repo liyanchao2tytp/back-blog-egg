@@ -67,6 +67,7 @@ class MainController extends Controller {
             article.view_count as view_count, 
             type.typeName as typeName 
             FROM article LEFT JOIN type ON article.type_id = type.Id  
+        WHERE article.is_recycle = 0   
         ORDER BY  
             article.is_top DESC,    
             article.id DESC
@@ -78,6 +79,7 @@ class MainController extends Controller {
 
   }
 
+  
   async delArticle() {
     const { app, ctx } = this
     let id = ctx.params.id
@@ -86,6 +88,7 @@ class MainController extends Controller {
       data: res
     }
   }
+
 
   async getArticleById() {
     const { app, ctx } = this
@@ -100,7 +103,7 @@ class MainController extends Controller {
         type.typeName as typeName , 
         type.id as typeId 
     FROM article LEFT JOIN type ON article.type_id = type.id 
-    WHERE article.id= ${id}
+    WHERE article.id= ${id} 
     `
     const result = await app.mysql.query(sql)
     ctx.body = {
@@ -124,7 +127,7 @@ class MainController extends Controller {
     }
   }
 
-  async alterIsTop(){
+  async alterIsTop() {
     const { app, ctx } = this
     let id = ctx.request.body.id
     let yes_no_top = ctx.request.body.yn_top
@@ -141,6 +144,43 @@ class MainController extends Controller {
   }
 
 
+  async getRecycleArticle() {
+    const { app, ctx } = this
+    let sql = `
+      SELECT article.id as id, 
+          article.title as title, 
+          article.is_public as is_public,
+          FROM_UNIXTIME(article.addTime,'%Y-%m-%d %H:%i:%s' ) as addTime,  
+          article.view_count as view_count, 
+          FROM_UNIXTIME(article.delTime,'%Y-%m-%d %H:%i:%s' ) as delTime, 
+          type.typeName as typeName 
+      FROM article LEFT JOIN type ON article.type_id = type.Id  
+      WHERE article.is_recycle=1 
+      ORDER BY article.delTime DESC
+      `
+      const resultList = await app.mysql.query(sql)
+      ctx.body = {
+          articleList: resultList
+      }
+  }
+
+  async delToRecycle(){
+    const { app, ctx } = this
+    let id = ctx.request.body.id
+    let yes_no = ctx.request.body.yn_goto_recycle
+    let delTime = ctx.request.body.time
+    const row = {
+      id,
+      is_recycle: yes_no,
+      delTime,
+    }
+
+    const result = await app.mysql.update('article', row)
+    const isSuccess = result.affectedRows === 1
+    ctx.body = {
+      isOk: isSuccess
+    }
+  }
 }
 
 module.exports = MainController;
