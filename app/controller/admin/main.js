@@ -34,10 +34,8 @@ class MainController extends Controller {
     const { app, ctx } = this
     const tempArticle = ctx.request.body
     const result = await app.mysql.insert('article', tempArticle)
-    console.log(result)
     const insertSuccess = result.affectedRows === 1
     const insertId = result.insertId
-    console.log(insertSuccess)
     ctx.body = {
       isOk: insertSuccess,
       insertId: insertId
@@ -50,9 +48,7 @@ class MainController extends Controller {
     let tempArticle = ctx.request.body
 
     const result = await app.mysql.update('article', tempArticle)
-    console.log(result)
     const updateSuccess = result.affectedRows === 1
-    console.log(updateSuccess)
     ctx.body = {
       isOk: updateSuccess
     }
@@ -65,11 +61,15 @@ class MainController extends Controller {
             article.title as title, 
             article.intro as intro, 
             article.article_content as content, 
+            article.is_public as is_public,
+            article.is_top as is_top,
             FROM_UNIXTIME(article.addTime,'%Y-%m-%d %H:%i:%s' ) as addTime, 
             article.view_count as view_count, 
             type.typeName as typeName 
             FROM article LEFT JOIN type ON article.type_id = type.Id  
-            ORDER BY article.id DESC
+        ORDER BY  
+            article.is_top DESC,    
+            article.id DESC
     `
     const resultList = await app.mysql.query(sql)
     ctx.body = {
@@ -81,14 +81,14 @@ class MainController extends Controller {
   async delArticle() {
     const { app, ctx } = this
     let id = ctx.params.id
-    const res = await app.mysql.delete('article',{'id':id})
+    const res = await app.mysql.delete('article', { 'id': id })
     ctx.body = {
-      data:res
+      data: res
     }
   }
 
-  async getArticleById(){
-    const {app,ctx} = this
+  async getArticleById() {
+    const { app, ctx } = this
     let id = ctx.params.id
     let sql = `
     SELECT article.id as id, 
@@ -103,11 +103,43 @@ class MainController extends Controller {
     WHERE article.id= ${id}
     `
     const result = await app.mysql.query(sql)
-    console.log(result)
-    ctx.body={
-      data:result
+    ctx.body = {
+      data: result
     }
   }
+
+  async alterIsPublic() {
+    const { app, ctx } = this
+    let id = ctx.request.body.id
+    let yes_no_public = ctx.request.body.yn_public
+    const row = {
+      id: id,
+      is_public: yes_no_public
+    }
+
+    const result = await app.mysql.update('article', row)
+    const isSuccess = result.affectedRows === 1
+    ctx.body = {
+      isOk: isSuccess
+    }
+  }
+
+  async alterIsTop(){
+    const { app, ctx } = this
+    let id = ctx.request.body.id
+    let yes_no_top = ctx.request.body.yn_top
+    const row = {
+      id: id,
+      is_top: yes_no_top
+    }
+
+    const result = await app.mysql.update('article', row)
+    const isSuccess = result.affectedRows === 1
+    ctx.body = {
+      isOk: isSuccess
+    }
+  }
+
 
 }
 
