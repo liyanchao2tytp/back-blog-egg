@@ -55,31 +55,17 @@ class MainController extends Controller {
   }
 
   async getArticleList() {
-    const { app, ctx } = this
-    let sql = `
-        SELECT article.id as id, 
-            article.title as title, 
-            article.intro as intro, 
-            article.article_content as content, 
-            article.is_public as is_public,
-            article.is_top as is_top,
-            FROM_UNIXTIME(article.addTime,'%Y-%m-%d %H:%i:%s' ) as addTime, 
-            article.view_count as view_count, 
-            type.typeName as typeName 
-            FROM article LEFT JOIN type ON article.type_id = type.Id  
-        WHERE article.is_recycle = 0   
-        ORDER BY  
-            article.is_top DESC,    
-            article.id DESC
-    `
-    const resultList = await app.mysql.query(sql)
-    ctx.body = {
-      articleList: resultList
-    }
+    const { ctx,service } = this
+    let page = ctx.params.page == 0 ? 1 : ctx.params.page 
+    let pageSize = ctx.params.pageSize
 
+    const results = await service.admin.article.getArticleList(page, pageSize)
+    
+    ctx.body = { data: results }
   }
 
-  
+
+
   async delArticle() {
     const { app, ctx } = this
     let id = ctx.params.id
@@ -158,13 +144,13 @@ class MainController extends Controller {
       WHERE article.is_recycle=1 
       ORDER BY article.delTime DESC
       `
-      const resultList = await app.mysql.query(sql)
-      ctx.body = {
-          articleList: resultList
-      }
+    const resultList = await app.mysql.query(sql)
+    ctx.body = {
+      articleList: resultList
+    }
   }
 
-  async delToRecycle(){
+  async delToRecycle() {
     const { app, ctx } = this
     let id = ctx.request.body.id
     let yes_no = ctx.request.body.yn_goto_recycle

@@ -1,3 +1,10 @@
+/*
+ * @Author: lyc
+ * @Date: 2020-10-20 17:21:42
+ * @LastEditors: lyc
+ * @LastEditTime: 2020-11-15 11:54:13
+ * @Description: file content
+ */
 'use strict';
 
 const Controller = require('egg').Controller;
@@ -9,28 +16,13 @@ class HomeController extends Controller {
   }
 
   async getAriticleList() {
-    const { app, ctx } = this
-    // let id = this.ctx.params.id
-    let sql = `
-        SELECT article.id AS id,
-                article.title AS title, 
-                article.intro AS intro, 
-                FROM_UNIXTIME(article.addTime,'%Y-%m-%d %H:%i:%s' ) AS addTime,
-                article.view_count AS view_count ,
-                article.is_public AS is_public,
-                article.is_top AS is_top,
-                type.typeName AS typeName 
-            FROM article LEFT JOIN TYPE ON article.type_id = type.Id 
-        WHERE article.is_public = 1  AND article.is_recycle=0 
-        ORDER BY 
-            article.is_top DESC, 
-            article.addTime DESC 
-`
-    // 'WHERE type_id=' + id
-
-    const results = await app.mysql.query(sql)
+    const { ctx, service } = this
+    let page = ctx.params.page
+    let pageSize = ctx.params.pageSize
+    
+    const results = await service.default.article.getListPage(page, pageSize)
+ 
     ctx.body = { data: results }
-
   }
 
   async getAriticleById() {
@@ -38,13 +30,14 @@ class HomeController extends Controller {
     let id = ctx.params.id
     let sql = `
         SELECT article.id as id, 
-        article.title as title, 
-        article.intro as intro, 
-        article.article_content as content,
-        article.is_top as is_top, 
-        FROM_UNIXTIME(article.addTime,'%Y-%m-%d %H:%i:%s' ) as addTime, 
-        article.view_count as view_count, 
-        type.typeName as typeName 
+            article.title as title, 
+            article.intro as intro, 
+            article.article_content as content,
+            article.type_id as typeId, 
+            article.is_top as is_top, 
+            FROM_UNIXTIME(article.addTime,'%Y-%m-%d %H:%i:%s' ) as addTime, 
+            article.view_count as view_count, 
+            type.typeName as typeName 
         FROM article LEFT JOIN type ON article.type_id = type.Id 
         WHERE article.id=${id}
     `
@@ -82,8 +75,8 @@ class HomeController extends Controller {
     }
   }
 
-  async alterPublicState(){
-    const {app,ctx} = this
+  async alterPublicState() {
+    const { app, ctx } = this
     let sql = `
      
     `
