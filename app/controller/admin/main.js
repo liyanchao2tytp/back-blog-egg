@@ -4,15 +4,10 @@ const Controller = require('egg').Controller;
 
 class MainController extends Controller {
   async login() {
-    const { app, ctx } = this
+    const { ctx, service } = this
     let userName = ctx.request.body.userName
     let passWord = ctx.request.body.passWord
-
-    const sql = `
-        SELECT * FROM admin_user WHERE userName='${userName}' AND password = '${passWord}'
-      `
-    const res = await app.mysql.query(sql)
-
+    const res = await service.admin.article.checkLogin(userName,passWord)
     if (res.length > 0) {
       let openId = new Date().getTime()
       ctx.session.openId = { 'openId': openId }
@@ -20,7 +15,6 @@ class MainController extends Controller {
     } else {
       ctx.body = { 'message': '登陆失败' }
     }
-
   }
 
   async getTypeInfo() {
@@ -33,6 +27,7 @@ class MainController extends Controller {
   async addArticle() {
     const { app, ctx } = this
     const tempArticle = ctx.request.body
+    console.log(tempArticle);
     const result = await app.mysql.insert('article', tempArticle)
     const insertSuccess = result.affectedRows === 1
     const insertId = result.insertId
@@ -77,21 +72,11 @@ class MainController extends Controller {
 
 
   async getArticleById() {
-    const { app, ctx } = this
+    const { service, ctx } = this
     let id = ctx.params.id
-    let sql = `
-    SELECT article.id as id, 
-        article.title as title, 
-        article.intro as intro, 
-        article.article_content as content, 
-        FROM_UNIXTIME(article.addTime,'%Y-%m-%d' ) as addTime, 
-        article.view_count as view_count , 
-        type.typeName as typeName , 
-        type.id as typeId 
-    FROM article LEFT JOIN type ON article.type_id = type.id 
-    WHERE article.id= ${id} 
-    `
-    const result = await app.mysql.query(sql)
+
+    const result = await service.admin.article.getArticleById(id)
+    console.log(result)
     ctx.body = {
       data: result
     }
@@ -131,20 +116,9 @@ class MainController extends Controller {
 
 
   async getRecycleArticle() {
-    const { app, ctx } = this
-    let sql = `
-      SELECT article.id as id, 
-          article.title as title, 
-          article.is_public as is_public,
-          FROM_UNIXTIME(article.addTime,'%Y-%m-%d %H:%i:%s' ) as addTime,  
-          article.view_count as view_count, 
-          FROM_UNIXTIME(article.delTime,'%Y-%m-%d %H:%i:%s' ) as delTime, 
-          type.typeName as typeName 
-      FROM article LEFT JOIN type ON article.type_id = type.Id  
-      WHERE article.is_recycle=1 
-      ORDER BY article.delTime DESC
-      `
-    const resultList = await app.mysql.query(sql)
+    const { service, ctx } = this
+    
+    const resultList = await service.admin.article.getRecycleList()
     ctx.body = {
       articleList: resultList
     }

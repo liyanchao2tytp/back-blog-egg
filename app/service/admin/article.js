@@ -2,7 +2,7 @@
  * @Author: lyc
  * @Date: 2020-11-14 21:01:51
  * @LastEditors: lyc
- * @LastEditTime: 2020-11-14 21:21:19
+ * @LastEditTime: 2020-11-16 14:59:02
  * @Description: file content
  */
 'use strict';
@@ -10,6 +10,13 @@
 const Service = require('egg').Service;
 
 class ArticleService extends Service {
+  async checkLogin(usrName, passWord) {
+    const { app } = this
+    const sql = `
+        SELECT * FROM admin_user WHERE userName=? AND password = ?
+      `
+    return app.mysql.query(sql, [usrName, passWord])
+  }
   async getArticleList(page, pageSize) {
     const { app } = this
     let start = pageSize * (page - 1)
@@ -47,6 +54,40 @@ class ArticleService extends Service {
       article: article,
       num: num
     }
+  }
+  async getArticleById(id) {
+    const { app } = this
+    let sql = `
+          SELECT article.id as id, 
+              article.title as title, 
+              article.intro as intro, 
+              article.is_top as is_top,
+              article.is_public as is_public,
+              article.article_content as content, 
+              FROM_UNIXTIME(article.addTime,'%Y-%m-%d' ) as addTime, 
+              article.view_count as view_count , 
+              type.typeName as typeName , 
+              type.id as typeId 
+          FROM article LEFT JOIN type ON article.type_id = type.id 
+          WHERE article.id= ?  
+    `
+    return app.mysql.query(sql, [id])
+  }       
+  async getRecycleList() {
+    const { app } = this
+    let sql = `
+        SELECT article.id as id, 
+            article.title as title, 
+            article.is_public as is_public,
+            FROM_UNIXTIME(article.addTime,'%Y-%m-%d %H:%i:%s' ) as addTime,  
+            article.view_count as view_count, 
+            FROM_UNIXTIME(article.delTime,'%Y-%m-%d %H:%i:%s' ) as delTime, 
+            type.typeName as typeName 
+        FROM article LEFT JOIN type ON article.type_id = type.Id  
+        WHERE article.is_recycle=1 
+        ORDER BY article.delTime DESC
+    `
+    return app.mysql.query(sql)
   }
 }
 
