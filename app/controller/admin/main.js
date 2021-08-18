@@ -4,17 +4,33 @@ const Controller = require('egg').Controller;
 
 class MainController extends Controller {
   async login() {
-    const { ctx, service } = this;
+    const { ctx, app, service } = this;
     const userName = ctx.request.body.userName;
     const passWord = ctx.request.body.passWord;
     const res = await service.admin.article.checkLogin(userName, passWord);
+    console.log(res);
     if (res.length > 0) {
-      const openId = new Date().getTime();
-      ctx.session.openId = openId;
-      ctx.body = { message: '登陆成功', openId };
+      const token = app.jwt.sign({
+        uid: res.id,
+      }, app.config.jwt.secret);
+      ctx.body = {
+        code: 200,
+        message: 'success',
+        token,
+      };
     } else {
-      ctx.body = { message: '登陆失败' };
+      ctx.body = {
+        code: 404,
+        message: '登陆失败',
+      };
     }
+    // if (res.length > 0) {
+    //   const openId = new Date().getTime();
+    //   ctx.session.openId = openId;
+    //   ctx.body = { message: '登陆成功', openId };
+    // } else {
+    //   ctx.body = { message: '登陆失败' };
+    // }
   }
   async logout() {
     const { ctx } = this;
