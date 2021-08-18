@@ -6,7 +6,7 @@
 #   "passWord":"lyc"
 # }
 
-GET http://127.0.0.1:7001/getlist 
+# GET http://127.0.0.1:7001/getlist 
 
 # POST  http://127.0.0.1:7001/admin/login HTTP/1.1
 # Host: localhost:7001
@@ -15,10 +15,10 @@ GET http://127.0.0.1:7001/getlist
 #   "userName":"lyc",
 #   "passWord":"lyc"
 # }
-# POST  http://127.0.0.1:7001/admin/alterPubState/ HTTP/1.1
-# Host: localhost:7001
-# Content-Type: application/json; charset=UTF-8
-# {
-#  "id":1,
-#  "yn_public":0
-# }
+ POST  http://127.0.0.1:7001/admin/addArticleType/ HTTP/1.1
+ Host: localhost:7001
+ Content-Type: application/json; charset=UTF-8
+ {
+  "typeName":"test",
+  "orderName":4
+ }

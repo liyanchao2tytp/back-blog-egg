@@ -2,7 +2,7 @@
  * @Author: lyc
  * @Date: 2020-10-20 17:21:42
  * @LastEditors: lyc
- * @LastEditTime: 2020-11-22 11:20:48
+ * @LastEditTime: 2021-08-15 15:47:44
  * @Description: file content
  */
 'use strict';
@@ -11,53 +11,50 @@ const Controller = require('egg').Controller;
 
 class HomeController extends Controller {
   async index() {
-    const { ctx } = this
-    ctx.body = 'this is sucess'
+    const { ctx } = this;
+    ctx.body = 'this is sucess';
   }
 
   async getAriticleList() {
-    const { ctx, service } = this
-    let page = ctx.params.page
-    let pageSize = ctx.params.pageSize
+    const { ctx, service } = this;
+    const page = ctx.params.page;
+    const pageSize = ctx.params.pageSize;
 
-    const results = await service.default.article.getListPage(page, pageSize)
+    const results = await service.default.article.getListPage(page, pageSize);
 
-    ctx.body = { data: results }
+    ctx.body = { data: results };
   }
 
   async getAriticleById() {
-    const { service, ctx } = this
-    let glueSql = ''
-    let id = ctx.params.id
-    id ? glueSql = `WHERE article.id = ${id}` : ''
-    const result = await service.default.article.getArticleById(glueSql)
+    const { service, ctx } = this;
+    let glueSql = '';
+    const id = ctx.params.id;
+    id ? glueSql = `WHERE article.id = ${id}` : '';
+    const result = await service.default.article.getArticleById(glueSql);
 
-    ctx.body = { data: result }
+    ctx.body = { data: result };
 
   }
 
   async getTypeInfo() {
-    const { ctx, app } = this
-    const results = await app.mysql.select('type')
-    ctx.body = { data: results }
+    const { ctx, app } = this;
+    const results = await app.mysql.select('type');
+    ctx.body = { data: results };
   }
 
   async getList() {
-    const { service, ctx } = this
-    let id = ctx.params.id
-    let page = ctx.params.page
-    let pageSize = ctx.params.pageSize
-    const results = await service.default.article.getTypeList(id, page, pageSize)
+    const { service, ctx } = this;
+    const id = ctx.params.id;
+    const page = ctx.params.page;
+    const pageSize = ctx.params.pageSize;
+    const results = await service.default.article.getTypeList(id, page, pageSize);
     ctx.body = {
-      data: results
-    }
+      data: results,
+    };
   }
 
   async alterPublicState() {
-    const { app, ctx } = this
-    let sql = `
-     
-    `
+    // const { app, ctx } = this;
   }
 
 }

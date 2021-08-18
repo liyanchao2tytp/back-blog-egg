@@ -1,3 +1,10 @@
+/*
+ * @Author: lyc
+ * @Date: 2020-10-15 21:02:36
+ * @LastEditors: lyc
+ * @LastEditTime: 2021-08-18 17:37:42
+ * @Description: file content
+ */
 /* eslint valid-jsdoc: "off" */
 
 'use strict';
@@ -16,9 +23,16 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1601697128068_9572';
 
   // add your middleware config here
-  // config.middleware = ['adminauth'];
-  config.middleware = [];
+  config.middleware = [ 'adminauth' ];
+  // config.middleware = [];
 
+  exports.session = {
+    key: 'EGG_SESS', // eggjs默认session的key
+    maxAge: 24 * 3600 * 1000, // 1 day
+    httpOnly: true,
+    encrypt: true,
+    renew: true, // 每次访问页面都会给session会话延长时间
+  };
 
   // add your user config here
   const userConfig = {
@@ -33,21 +47,21 @@ module.exports = appInfo => {
       database: 'react-blog',
     },
     app: true,
-    agent: false
-  }
+    agent: false,
+  };
   config.security = {
     // 关闭csrf校验机制
     csrf: {
-      enable: false
+      enable: false,
     },
-    domainWhiteList: ['*']
-  }
+    domainWhiteList: [ '*' ],
+  };
 
   config.cors = {
     // origin: '*',
-    credentials:true, //运行cookie跨域
-    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS'
-  }
+    credentials: true, // 运行cookie跨域
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS',
+  };
 
   return {
     ...config,
